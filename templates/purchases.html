@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchases — Inventory Management System{% endblock %}
+{% block heading %}Purchase Orders{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between">
+        <div class="header-title-group">
+            <h3>Purchase History</h3>
+            <p class="subtitle">Complete record of all inventory purchases and goods received</p>
+        </div>
+        <a href="{{ url_for('purchases.add_purchase') }}" class="btn btn-primary">
+            + New Purchase Order
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Purchase ID</th>
+                    <th>Supplier</th>
+                    <th>Product</th>
+                    <th>Warehouse</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Total Cost (₹)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if purchases %}
+                    {% for p in purchases %}
+                        <tr>
+                            <td>#{{ p.purchase_id }}</td>
+                            <td><strong>{{ p.supplier_name }}</strong></td>
+                            <td>{{ p.product_name }}</td>
+                            <td>{{ p.warehouse_name }}</td>
+                            <td><span class="badge badge-info">+{{ p.quantity }} units</span></td>
+                            <td>₹{{ "%.2f"|format(p.price) }}</td>
+                            <td><strong>₹{{ "%.2f"|format(p.total_cost) }}</strong></td>
+                            <td>{{ p.order_date }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted empty-cell">
+                            No purchase orders found. Click "+ New Purchase Order" to receive stock.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

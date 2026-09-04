@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory Management System{% endblock %}</title>
+    <!-- Modern clean styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <span class="logo-icon">📦</span>
+                    <span class="brand-title">InventoryHub</span>
+                </div>
+                <button class="mobile-toggle" id="closeSidebarBtn">&times;</button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.path == '/' or request.path == '/dashboard' %}active{% endif %}">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('products.list_products') }}" class="nav-item {% if '/products' in request.path %}active{% endif %}">
+                    <span class="nav-icon">🏷️</span>
+                    <span>Products</span>
+                </a>
+                <a href="{{ url_for('suppliers.list_suppliers') }}" class="nav-item {% if '/suppliers' in request.path %}active{% endif %}">
+                    <span class="nav-icon">🚚</span>
+                    <span>Suppliers</span>
+                </a>
+                <a href="{{ url_for('warehouses.list_warehouses') }}" class="nav-item {% if '/warehouses' in request.path %}active{% endif %}">
+                    <span class="nav-icon">🏭</span>
+                    <span>Warehouses</span>
+                </a>
+                <a href="{{ url_for('stock.list_stock') }}" class="nav-item {% if '/stock' in request.path %}active{% endif %}">
+                    <span class="nav-icon">📋</span>
+                    <span>Stock</span>
+                </a>
+                <a href="{{ url_for('purchases.list_purchases') }}" class="nav-item {% if '/purchases' in request.path %}active{% endif %}">
+                    <span class="nav-icon">🛒</span>
+                    <span>Purchases</span>
+                </a>
+                <a href="{{ url_for('sales.list_sales') }}" class="nav-item {% if '/sales' in request.path %}active{% endif %}">
+                    <span class="nav-icon">💰</span>
+                    <span>Sales</span>
+                </a>
+                <a href="{{ url_for('reports.view_reports') }}" class="nav-item {% if '/reports' in request.path %}active{% endif %}">
+                    <span class="nav-icon">📈</span>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="db-pill">
+                    <span class="status-dot online"></span>
+                    <span>MySQL Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="openSidebarBtn">☰</button>
+                    <h2 class="page-heading">{% block heading %}Dashboard{% endblock %}</h2>
+                </div>
+                <div class="topbar-right">
+                    <span class="project-badge">🎓 BTech Project</span>
+                    <span class="today-date" id="liveDate"></span>
+                </div>
+            </header>
+
+            <!-- Flash Alert Messages -->
+            <div class="flash-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <span class="alert-icon">
+                                    {% if category == 'success' %}✅
+                                    {% elif category == 'danger' %}❌
+                                    {% elif category == 'warning' %}⚠️
+                                    {% else %}ℹ️{% endif %}
+                                </span>
+                                <span class="alert-text">{{ message }}</span>
+                                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Page Body Content -->
+            <div class="content-wrapper">
+                {% block content %}
+                    {% if not_found %}
+                        <div class="card error-box">
+                            <h2>404 - Page Not Found</h2>
+                            <p>The requested page could not be found.</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+                        </div>
+                    {% elif server_error %}
+                        <div class="card error-box">
+                            <h2>500 - Server Error</h2>
+                            <p>An unexpected internal error occurred.</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

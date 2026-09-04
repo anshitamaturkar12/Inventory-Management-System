@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Warehouse — Inventory Management System{% endblock %}
+{% block heading %}Edit Warehouse #{{ warehouse.warehouse_id }}{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>Update Warehouse Details</h3>
+            <p class="subtitle">Modify storage facility details for {{ warehouse.warehouse_name }}</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('warehouses.edit_warehouse', warehouse_id=warehouse.warehouse_id) }}" method="POST" class="styled-form">
+            <div class="form-group">
+                <label for="warehouse_name">Warehouse Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="warehouse_name" 
+                    name="warehouse_name" 
+                    class="form-control" 
+                    value="{{ warehouse.warehouse_name }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location / Address</label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    class="form-control" 
+                    value="{{ warehouse.location or '' }}"
+                >
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('warehouses.list_warehouses') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

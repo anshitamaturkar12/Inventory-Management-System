@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales — Inventory Management System{% endblock %}
+{% block heading %}Sales Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between">
+        <div class="header-title-group">
+            <h3>Sales History</h3>
+            <p class="subtitle">Complete record of customer transactions and inventory dispatches</p>
+        </div>
+        <a href="{{ url_for('sales.add_sale') }}" class="btn btn-primary">
+            + New Sale Order
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Product</th>
+                    <th>Warehouse</th>
+                    <th>Customer Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Total Revenue (₹)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sales %}
+                    {% for s in sales %}
+                        <tr>
+                            <td>#{{ s.sale_id }}</td>
+                            <td><strong>{{ s.product_name }}</strong></td>
+                            <td>{{ s.warehouse_name }}</td>
+                            <td>{{ s.customer_name }}</td>
+                            <td><span class="badge badge-warning">-{{ s.quantity }} units</span></td>
+                            <td>₹{{ "%.2f"|format(s.sale_price) }}</td>
+                            <td><strong class="text-success">₹{{ "%.2f"|format(s.total_revenue) }}</strong></td>
+                            <td>{{ s.sale_date }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted empty-cell">
+                            No sales records found. Click "+ New Sale Order" to record a customer dispatch.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports — Inventory Management System{% endblock %}
+{% block heading %}Inventory Reports & Analytics{% endblock %}
+
+{% block content %}
+<!-- Section 1: Low Stock Report -->
+<div class="card mb-4">
+    <div class="card-header space-between">
+        <div class="header-title-group">
+            <h3>🔴 Low Stock Report</h3>
+            <p class="subtitle">Products needing replenishment (current quantity &le; minimum stock)</p>
+        </div>
+        <span class="badge badge-danger">{{ low_stock|length }} Critical Items</span>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Warehouse Location</th>
+                    <th>Current Stock</th>
+                    <th>Minimum Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if low_stock %}
+                    {% for item in low_stock %}
+                        <tr class="row-warning">
+                            <td><strong>{{ item.product_name }}</strong></td>
+                            <td><span class="category-pill">{{ item.category }}</span></td>
+                            <td>{{ item.warehouse_name }}</td>
+                            <td><span class="stock-qty-pill text-danger font-weight-bold">{{ item.current_stock }} units</span></td>
+                            <td>{{ item.minimum_stock }} units</td>
+                            <td><span class="badge badge-danger">🔴 LOW STOCK</span></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted empty-cell">
+                            🟢 All products currently maintain healthy inventory levels!
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Section 2: Supplier-wise Inventory Report -->
+<div class="card mb-4">
+    <div class="card-header space-between flex-wrap gap-2">
+        <div class="header-title-group">
+            <h3>🚚 Supplier-wise Purchase Report</h3>
+            <p class="subtitle">Total inventory procured from each supplier across all purchase orders</p>
+        </div>
+        <!-- Supplier Filter -->
+        <form action="{{ url_for('reports.view_reports') }}" method="GET" class="filter-form">
+            <label for="supplier_id" class="filter-label">Filter by Supplier:</label>
+            <select name="supplier_id" id="supplier_id" class="form-control select-control" onchange="this.form.submit()">
+                <option value="">All Suppliers</option>
+                {% for s in suppliers %}
+                    <option value="{{ s.supplier_id }}" {% if selected_supplier == s.supplier_id|string %}selected{% endif %}>
+                        {{ s.supplier_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if selected_supplier %}
+                <a href="{{ url_for('reports.view_reports') }}" class="btn btn-outline-sm">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Supplier</th>
+                    <th>Product Supplied</th>
+                    <th>Category</th>
+                    <th>Total Purchased Quantity</th>
+                    <th>Total Procured Value (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if supplier_report %}
+                    {% for row in supplier_report %}
+                        <tr>
+                            <td><strong>{{ row.supplier_name }}</strong></td>
+                            <td>{{ row.product_name }}</td>
+                            <td><span class="category-pill">{{ row.category }}</span></td>
+                            <td><span class="badge badge-info">{{ row.total_purchased_quantity }} units</span></td>
+                            <td>₹{{ "%.2f"|format(row.total_spent) }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted empty-cell">
+                            No purchase history found{% if selected_supplier %} for this supplier{% endif %}.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Section 3: Warehouse-wise Stock Report -->
+<div class="card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>🏭 Warehouse-wise Stock Distribution</h3>
+            <p class="subtitle">Complete current stock distribution across all warehouses</p>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Warehouse Facility</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Available Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if warehouse_report %}
+                    {% for row in warehouse_report %}
+                        <tr>
+                            <td><strong>{{ row.warehouse_name }}</strong></td>
+                            <td>{{ row.product_name }}</td>
+                            <td><span class="category-pill">{{ row.category }}</span></td>
+                            <td>
+                                <span class="stock-qty-pill font-weight-bold">
+                                    {{ row.quantity }} units
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted empty-cell">
+                            No warehouse stock recorded yet.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

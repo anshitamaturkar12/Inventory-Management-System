@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Warehouses — Inventory Management System{% endblock %}
+{% block heading %}Warehouse Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between">
+        <div class="header-title-group">
+            <h3>Storage Warehouses</h3>
+            <p class="subtitle">Physical facilities where inventory items are stored</p>
+        </div>
+        <a href="{{ url_for('warehouses.add_warehouse') }}" class="btn btn-primary">
+            + Add Warehouse
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Warehouse Name</th>
+                    <th>Location / City</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if warehouses %}
+                    {% for w in warehouses %}
+                        <tr>
+                            <td>#{{ w.warehouse_id }}</td>
+                            <td><strong>{{ w.warehouse_name }}</strong></td>
+                            <td>{{ w.location or '—' }}</td>
+                            <td class="action-buttons">
+                                <a href="{{ url_for('warehouses.edit_warehouse', warehouse_id=w.warehouse_id) }}" class="btn-action edit-btn" title="Edit">
+                                    ✏️ Edit
+                                </a>
+                                <form action="{{ url_for('warehouses.delete_warehouse', warehouse_id=w.warehouse_id) }}" method="POST" class="inline-form" onsubmit="return confirm('Are you sure you want to delete warehouse \'{{ w.warehouse_name }}\'?');">
+                                    <button type="submit" class="btn-action delete-btn" title="Delete">
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted empty-cell">
+                            No warehouses registered yet. Click "+ Add Warehouse" to add one.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

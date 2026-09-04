@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Sale Order — Inventory Management System{% endblock %}
+{% block heading %}Record New Sale Order{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>Sale Dispatch Details</h3>
+            <p class="subtitle">System will verify stock availability in the selected warehouse before confirming</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('sales.add_sale') }}" method="POST" class="styled-form" id="saleForm">
+            <div class="form-row">
+                <div class="form-group col-half">
+                    <label for="product_id">Product to Sell <span class="required">*</span></label>
+                    <select id="product_id" name="product_id" class="form-control" required onchange="handleProductSelect(this)">
+                        <option value="">-- Select Product --</option>
+                        {% for p in products %}
+                            <option value="{{ p.product_id }}" data-price="{{ p.price }}">
+                                {{ p.product_name }} (Catalog Price: ₹{{ "%.2f"|format(p.price) }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group col-half">
+                    <label for="warehouse_id">Dispatch Warehouse <span class="required">*</span></label>
+                    <select id="warehouse_id" name="warehouse_id" class="form-control" required>
+                        <option value="">-- Select Warehouse --</option>
+                        {% for w in warehouses %}
+                            <option value="{{ w.warehouse_id }}">{{ w.warehouse_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="customer_name">Customer / Buyer Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="customer_name" 
+                    name="customer_name" 
+                    class="form-control" 
+                    placeholder="e.g. Ramesh Enterprises / Priya Singh" 
+                    required
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-third">
+                    <label for="quantity">Quantity (Units) <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="quantity" 
+                        name="quantity" 
+                        min="1" 
+                        class="form-control" 
+                        placeholder="e.g. 2" 
+                        required
+                        oninput="calculateTotal()"
+                    >
+                </div>
+
+                <div class="form-group col-third">
+                    <label for="sale_price">Selling Unit Price (₹) <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="sale_price" 
+                        name="sale_price" 
+                        step="0.01" 
+                        min="0" 
+                        class="form-control" 
+                        placeholder="0.00" 
+                        required
+                        oninput="calculateTotal()"
+                    >
+                </div>
+
+                <div class="form-group col-third">
+                    <label for="sale_date">Sale Date <span class="required">*</span></label>
+                    <input 
+                        type="date" 
+                        id="sale_date" 
+                        name="sale_date" 
+                        class="form-control" 
+                        value="{{ today }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Auto Total Calculation Banner -->
+            <div class="calculation-box">
+                <span>Total Billing Amount: </span>
+                <strong id="displayTotal">₹0.00</strong>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Complete Sale & Deduct Stock</button>
+                <a href="{{ url_for('sales.list_sales') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function handleProductSelect(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const defaultPrice = selectedOption.getAttribute('data-price');
+    if (defaultPrice) {
+        document.getElementById('sale_price').value = defaultPrice;
+        calculateTotal();
+    }
+}
+
+function calculateTotal() {
+    const qty = parseFloat(document.getElementById('quantity').value) || 0;
+    const price = parseFloat(document.getElementById('sale_price').value) || 0;
+    const total = qty * price;
+    document.getElementById('displayTotal').innerText = '₹' + total.toFixed(2);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product — Inventory Management System{% endblock %}
+{% block heading %}Add New Product{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>Product Information</h3>
+            <p class="subtitle">Enter the specifications for the new inventory product</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('products.add_product') }}" method="POST" class="styled-form">
+            <div class="form-group">
+                <label for="product_name">Product Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="product_name" 
+                    name="product_name" 
+                    class="form-control" 
+                    placeholder="e.g. Mechanical Keyboard" 
+                    value="{{ product_name or '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="category" 
+                    name="category" 
+                    class="form-control" 
+                    placeholder="e.g. Accessories, Electronics, Office" 
+                    value="{{ category or '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-half">
+                    <label for="price">Unit Price (₹) <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="price" 
+                        name="price" 
+                        step="0.01" 
+                        min="0" 
+                        class="form-control" 
+                        placeholder="0.00" 
+                        value="{{ price or '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group col-half">
+                    <label for="minimum_stock">Minimum Stock Alert Level <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="minimum_stock" 
+                        name="minimum_stock" 
+                        min="0" 
+                        class="form-control" 
+                        placeholder="e.g. 5" 
+                        value="{{ minimum_stock or '5' }}"
+                        required
+                    >
+                    <small class="form-hint">System triggers Low Stock alert when quantity falls to or below this count.</small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Product</button>
+                <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

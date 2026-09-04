@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers — Inventory Management System{% endblock %}
+{% block heading %}Supplier Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between flex-wrap gap-2">
+        <!-- Search form -->
+        <form action="{{ url_for('suppliers.list_suppliers') }}" method="GET" class="search-form">
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by supplier name..." 
+                value="{{ search_query }}"
+                class="form-control search-input"
+            >
+            <button type="submit" class="btn btn-secondary">Search</button>
+            {% if search_query %}
+                <a href="{{ url_for('suppliers.list_suppliers') }}" class="btn btn-outline-sm">Clear</a>
+            {% endif %}
+        </form>
+
+        <!-- Add Supplier Button -->
+        <a href="{{ url_for('suppliers.add_supplier') }}" class="btn btn-primary">
+            + Add Supplier
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if suppliers %}
+                    {% for s in suppliers %}
+                        <tr>
+                            <td>#{{ s.supplier_id }}</td>
+                            <td><strong>{{ s.supplier_name }}</strong></td>
+                            <td>{{ s.phone or '—' }}</td>
+                            <td>
+                                {% if s.email %}
+                                    <a href="mailto:{{ s.email }}" class="text-link">{{ s.email }}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="address-cell">{{ s.address or '—' }}</td>
+                            <td class="action-buttons">
+                                <a href="{{ url_for('suppliers.edit_supplier', supplier_id=s.supplier_id) }}" class="btn-action edit-btn" title="Edit">
+                                    ✏️ Edit
+                                </a>
+                                <form action="{{ url_for('suppliers.delete_supplier', supplier_id=s.supplier_id) }}" method="POST" class="inline-form" onsubmit="return confirm('Are you sure you want to delete supplier \'{{ s.supplier_name }}\'?');">
+                                    <button type="submit" class="btn-action delete-btn" title="Delete">
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted empty-cell">
+                            {% if search_query %}
+                                No suppliers found matching "{{ search_query }}".
+                            {% else %}
+                                No suppliers registered yet. Click "+ Add Supplier" to register one.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

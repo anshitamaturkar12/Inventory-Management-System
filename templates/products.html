@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Products — Inventory Management System{% endblock %}
+{% block heading %}Product Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between flex-wrap gap-2">
+        <!-- Search form -->
+        <form action="{{ url_for('products.list_products') }}" method="GET" class="search-form">
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by name or category..." 
+                value="{{ search_query }}"
+                class="form-control search-input"
+            >
+            <button type="submit" class="btn btn-secondary">Search</button>
+            {% if search_query %}
+                <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-sm">Clear</a>
+            {% endif %}
+        </form>
+
+        <!-- Add Product Button -->
+        <a href="{{ url_for('products.add_product') }}" class="btn btn-primary">
+            + Add Product
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price (₹)</th>
+                    <th>Minimum Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products %}
+                    {% for p in products %}
+                        <tr>
+                            <td>#{{ p.product_id }}</td>
+                            <td><strong>{{ p.product_name }}</strong></td>
+                            <td><span class="category-pill">{{ p.category }}</span></td>
+                            <td>₹{{ "%.2f"|format(p.price) }}</td>
+                            <td><span class="min-stock-pill">{{ p.minimum_stock }}</span></td>
+                            <td class="action-buttons">
+                                <a href="{{ url_for('products.edit_product', product_id=p.product_id) }}" class="btn-action edit-btn" title="Edit">
+                                    ✏️ Edit
+                                </a>
+                                <form action="{{ url_for('products.delete_product', product_id=p.product_id) }}" method="POST" class="inline-form" onsubmit="return confirm('Are you sure you want to delete product \'{{ p.product_name }}\'?');">
+                                    <button type="submit" class="btn-action delete-btn" title="Delete">
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted empty-cell">
+                            {% if search_query %}
+                                No products found matching "{{ search_query }}".
+                            {% else %}
+                                No products registered yet. Click "+ Add Product" to create one.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

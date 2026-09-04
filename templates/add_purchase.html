@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Purchase Order — Inventory Management System{% endblock %}
+{% block heading %}Record New Purchase Order{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>Purchase Order Details</h3>
+            <p class="subtitle">Creating this purchase order will automatically increase stock in the selected warehouse</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('purchases.add_purchase') }}" method="POST" class="styled-form" id="purchaseForm">
+            <div class="form-row">
+                <div class="form-group col-half">
+                    <label for="supplier_id">Supplier <span class="required">*</span></label>
+                    <select id="supplier_id" name="supplier_id" class="form-control" required>
+                        <option value="">-- Select Supplier --</option>
+                        {% for s in suppliers %}
+                            <option value="{{ s.supplier_id }}">{{ s.supplier_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group col-half">
+                    <label for="warehouse_id">Receiving Warehouse <span class="required">*</span></label>
+                    <select id="warehouse_id" name="warehouse_id" class="form-control" required>
+                        <option value="">-- Select Warehouse --</option>
+                        {% for w in warehouses %}
+                            <option value="{{ w.warehouse_id }}">{{ w.warehouse_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="product_id">Product <span class="required">*</span></label>
+                <select id="product_id" name="product_id" class="form-control" required onchange="handleProductSelect(this)">
+                    <option value="">-- Select Product --</option>
+                    {% for p in products %}
+                        <option value="{{ p.product_id }}" data-price="{{ p.price }}">
+                            {{ p.product_name }} (Catalog Price: ₹{{ "%.2f"|format(p.price) }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-third">
+                    <label for="quantity">Quantity (Units) <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="quantity" 
+                        name="quantity" 
+                        min="1" 
+                        class="form-control" 
+                        placeholder="e.g. 10" 
+                        required
+                        oninput="calculateTotal()"
+                    >
+                </div>
+
+                <div class="form-group col-third">
+                    <label for="price">Purchase Unit Price (₹) <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        id="price" 
+                        name="price" 
+                        step="0.01" 
+                        min="0" 
+                        class="form-control" 
+                        placeholder="0.00" 
+                        required
+                        oninput="calculateTotal()"
+                    >
+                </div>
+
+                <div class="form-group col-third">
+                    <label for="order_date">Order Date <span class="required">*</span></label>
+                    <input 
+                        type="date" 
+                        id="order_date" 
+                        name="order_date" 
+                        class="form-control" 
+                        value="{{ today }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Auto Total Calculation Banner -->
+            <div class="calculation-box">
+                <span>Calculated Order Total: </span>
+                <strong id="displayTotal">₹0.00</strong>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Purchase & Add to Stock</button>
+                <a href="{{ url_for('purchases.list_purchases') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function handleProductSelect(selectElement) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const defaultPrice = selectedOption.getAttribute('data-price');
+    if (defaultPrice) {
+        document.getElementById('price').value = defaultPrice;
+        calculateTotal();
+    }
+}
+
+function calculateTotal() {
+    const qty = parseFloat(document.getElementById('quantity').value) || 0;
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const total = qty * price;
+    document.getElementById('displayTotal').innerText = '₹' + total.toFixed(2);
+}
+</script>
+{% endblock %}

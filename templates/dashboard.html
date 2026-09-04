@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — Inventory Management System{% endblock %}
+{% block heading %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<!-- KPI Stats Row -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-wrapper bg-blue">📦</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Products</span>
+            <h3 class="stat-value">{{ total_products }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper bg-teal">🚚</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Suppliers</span>
+            <h3 class="stat-value">{{ total_suppliers }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper bg-purple">🏭</div>
+        <div class="stat-info">
+            <span class="stat-label">Warehouses</span>
+            <h3 class="stat-value">{{ total_warehouses }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper bg-green">📊</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Stock Units</span>
+            <h3 class="stat-value">{{ total_stock }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card {% if low_stock_count > 0 %}alert-border{% endif %}">
+        <div class="stat-icon-wrapper bg-red">⚠️</div>
+        <div class="stat-info">
+            <span class="stat-label">Low Stock Alerts</span>
+            <h3 class="stat-value text-danger">{{ low_stock_count }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alert Section -->
+<div class="card mt-4">
+    <div class="card-header space-between">
+        <div class="header-title-group">
+            <h3>🔴 Low Stock Alerts</h3>
+            <p class="subtitle">Products at or below their specified minimum threshold</p>
+        </div>
+        <a href="{{ url_for('reports.view_reports') }}" class="btn btn-outline-sm">Full Report &rarr;</a>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Warehouse</th>
+                    <th>Current Stock</th>
+                    <th>Minimum Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if low_stock_items %}
+                    {% for item in low_stock_items %}
+                        <tr>
+                            <td><strong>{{ item.product_name }}</strong></td>
+                            <td>{{ item.warehouse_name }}</td>
+                            <td><span class="stock-qty-pill text-danger font-weight-bold">{{ item.current_stock }}</span></td>
+                            <td>{{ item.minimum_stock }}</td>
+                            <td>
+                                {% if item.current_stock <= item.minimum_stock %}
+                                    <span class="badge badge-danger">🔴 LOW STOCK</span>
+                                {% else %}
+                                    <span class="badge badge-success">🟢 IN STOCK</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted empty-cell">
+                            🟢 All products are currently above their minimum stock levels!
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Transactions Grid (Purchases & Sales) -->
+<div class="dashboard-grid mt-4">
+    <!-- Recent Purchases -->
+    <div class="card">
+        <div class="card-header space-between">
+            <div class="header-title-group">
+                <h3>🛒 Recent Purchases</h3>
+                <p class="subtitle">Latest inventory purchases from suppliers</p>
+            </div>
+            <a href="{{ url_for('purchases.list_purchases') }}" class="btn btn-outline-sm">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table compact">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Supplier</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Amount (₹)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_purchases %}
+                        {% for p in recent_purchases %}
+                            <tr>
+                                <td>#{{ p.purchase_id }}</td>
+                                <td>{{ p.supplier_name }}</td>
+                                <td>{{ p.product_name }}</td>
+                                <td><span class="badge badge-info">+{{ p.quantity }}</span></td>
+                                <td>₹{{ "%.2f"|format(p.total_amount) }}</td>
+                                <td>{{ p.order_date }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted empty-cell">No purchases recorded yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Sales -->
+    <div class="card">
+        <div class="card-header space-between">
+            <div class="header-title-group">
+                <h3>💰 Recent Sales</h3>
+                <p class="subtitle">Latest customer sales and dispatches</p>
+            </div>
+            <a href="{{ url_for('sales.list_sales') }}" class="btn btn-outline-sm">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table compact">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Customer</th>
+                        <th>Qty</th>
+                        <th>Amount (₹)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_sales %}
+                        {% for s in recent_sales %}
+                            <tr>
+                                <td>#{{ s.sale_id }}</td>
+                                <td>{{ s.product_name }}</td>
+                                <td>{{ s.customer_name }}</td>
+                                <td><span class="badge badge-warning">-{{ s.quantity }}</span></td>
+                                <td>₹{{ "%.2f"|format(s.total_amount) }}</td>
+                                <td>{{ s.sale_date }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted empty-cell">No sales recorded yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

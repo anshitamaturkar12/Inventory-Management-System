@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Management — Inventory Management System{% endblock %}
+{% block heading %}Stock & Inventory Levels{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header space-between flex-wrap gap-2">
+        <!-- Warehouse Filter Form -->
+        <form action="{{ url_for('stock.list_stock') }}" method="GET" class="filter-form">
+            <label for="warehouse_id" class="filter-label">Filter by Warehouse:</label>
+            <select name="warehouse_id" id="warehouse_id" class="form-control select-control" onchange="this.form.submit()">
+                <option value="">All Warehouses</option>
+                {% for w in warehouses %}
+                    <option value="{{ w.warehouse_id }}" {% if selected_warehouse == w.warehouse_id|string %}selected{% endif %}>
+                        {{ w.warehouse_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if selected_warehouse %}
+                <a href="{{ url_for('stock.list_stock') }}" class="btn btn-outline-sm">Reset Filter</a>
+            {% endif %}
+        </form>
+
+        <!-- Quick Info / Status count -->
+        <div class="header-action-group">
+            <span class="text-muted">Total Records: <strong>{{ stock_items|length }}</strong></span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Warehouse</th>
+                    <th>Current Quantity</th>
+                    <th>Minimum Stock</th>
+                    <th>Status</th>
+                    <th>Update Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if stock_items %}
+                    {% for item in stock_items %}
+                        <tr class="{% if item.quantity <= item.minimum_stock %}row-warning{% endif %}">
+                            <td><strong>{{ item.product_name }}</strong></td>
+                            <td><span class="category-pill">{{ item.category }}</span></td>
+                            <td>{{ item.warehouse_name }}</td>
+                            <td>
+                                <span class="stock-qty-pill {% if item.quantity <= item.minimum_stock %}text-danger font-weight-bold{% endif %}">
+                                    {{ item.quantity }}
+                                </span>
+                            </td>
+                            <td>{{ item.minimum_stock }}</td>
+                            <td>
+                                {% if item.quantity <= item.minimum_stock %}
+                                    <span class="badge badge-danger">🔴 LOW STOCK</span>
+                                {% else %}
+                                    <span class="badge badge-success">🟢 IN STOCK</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Direct MySQL Stock Update Form -->
+                                <form action="{{ url_for('stock.update_stock') }}" method="POST" class="stock-update-form">
+                                    <input type="hidden" name="stock_id" value="{{ item.stock_id }}">
+                                    <input 
+                                        type="number" 
+                                        name="quantity" 
+                                        value="{{ item.quantity }}" 
+                                        min="0" 
+                                        class="form-control form-control-sm qty-input"
+                                        required
+                                    >
+                                    <button type="submit" class="btn btn-secondary btn-sm" title="Save new quantity to MySQL">
+                                        Update
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted empty-cell">
+                            No stock records found{% if selected_warehouse %} for this warehouse{% endif %}.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

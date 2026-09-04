@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Supplier — Inventory Management System{% endblock %}
+{% block heading %}Add New Supplier{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <div class="header-title-group">
+            <h3>Supplier Information</h3>
+            <p class="subtitle">Enter contact details for the vendor/supplier</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('suppliers.add_supplier') }}" method="POST" class="styled-form">
+            <div class="form-group">
+                <label for="supplier_name">Supplier / Vendor Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="supplier_name" 
+                    name="supplier_name" 
+                    class="form-control" 
+                    placeholder="e.g. Apex Global Distributors" 
+                    value="{{ supplier_name or '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-half">
+                    <label for="phone">Phone Number</label>
+                    <input 
+                        type="text" 
+                        id="phone" 
+                        name="phone" 
+                        class="form-control" 
+                        placeholder="e.g. +91 98765 43210" 
+                        value="{{ phone or '' }}"
+                    >
+                </div>
+
+                <div class="form-group col-half">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="e.g. contact@supplier.com" 
+                        value="{{ email or '' }}"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Postal Address / City</label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    rows="3" 
+                    class="form-control" 
+                    placeholder="Enter physical address or warehouse location..."
+                >{{ address or '' }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Supplier</button>
+                <a href="{{ url_for('suppliers.list_suppliers') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
